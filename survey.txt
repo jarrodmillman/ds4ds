@@ -1,0 +1,58 @@
+Application (1 sentence):
+
+Data type:
+e.g., arrays, points (what dimension?), time series, images (2D or 3D), pairwise distance
+matrices, graphs, text, nucleotide strings, etc.
+
+Questions you are after (as concisely as possible):
+
+Algorithms (detailed):
+briefly describe key algorithms you use, as well as the pipeline (how they fit
+together); if possible, give references to papers.
+
+Data structures:
+if you know, what data structures do the algorithms use internally? And what
+data structures they could use to perform better?
+
+Desiderata (what's missing that you'd like to have):
+e.g., the methods you use can't cope with high-enough dimensionality; there are too
+many parameters to tune; it's difficult to validate results (e.g., compare
+different clusterings, embeddings, etc)
+
+---
+
+Example from Dmitriy:
+
+Application: segmenting scalar functions (e.g., images)
+
+Data type: 2D or 3D arrays, graphs with scalar values on vertices
+
+Questions you are after: identify interesting regions in images (brain regions,
+grains, cells, etc) by finding basins of attraction of (prominent) extrema.
+
+Algorithms:
+Pipeline: perform watershed segmentation of the function; compute persistence of
+each extremum; simplify low-persistence extrema (merging regions of low
+persistence into high persistence).
+Watershed: sort vertices by function value; process one by one; if maximum,
+start a new label; if not propagate neighbor's label; if neighbors have multiple
+labels, add edges between those labels to the dual graphs.
+Persistence: process labels in order of function values of extrema; keep track
+of connected components; when two different components meet, say that the
+youngest is merging into the older one, and assign the difference between when
+it started and when it merged as its persistence; assign this value to the edge.
+Simplification: mark all edges below the given threshold; merge labels that fall
+into the same connected component of the induced graph.
+
+Data structures:
+priority queue for processing vertices in sorted order; additional arrays for
+storing labels; a dual graph of the regions for simplifying the parcellation;
+merge tree for computing persistence and identifying how to relabel the
+simplified parcellation.
+
+Desiderata:
+a better way to select simplification thresholds (currently, this requires a
+human in the loop, with persistence diagrams helping guide the human); parallel
+computation (memory requirements are at least three-four times larger than the
+input image; if the image doesn't fit in memory, we can't process it; if the
+image is large, computation can take a while).
